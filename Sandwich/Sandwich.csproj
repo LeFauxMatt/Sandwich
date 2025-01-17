@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="..\FauxCore\FauxCommon\Common.targets" />
+	<Import Project="..\FauxCore\FauxCommon\FauxCommon.projitems" Label="Shared" />
+
+	<PropertyGroup>
+		<Name>Sandwich</Name>
+		<Description>A sandwich is two slices of bread with filling between them.</Description>
+		<Version>1.0.0-beta.1</Version>
+		<EnableHarmony>true</EnableHarmony>
+		<RootNamespace>LeFauxMods.Sandwich</RootNamespace>
+		<UniqueId>furyx639.Sandwich</UniqueId>
+		<UpdateKeys>GitHub:LeFauxMatt/Sandwich</UpdateKeys>
+		<RepositoryUrl>https://github.com/LeFauxMatt/Sandwich</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Pathoschild.Stardew.ModTranslationClassBuilder" Version="2.2.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<SMAPIDependency Include="spacechase0.GenericModConfigMenu" Version="1.14.1" required="false" />
+	</ItemGroup>
+
+</Project>
