@@ -54,8 +54,8 @@ internal static class ModExtensions
     {
         var chest = obj switch
         {
+            Chest { ItemId: Constants.SandwichId } tableChest => tableChest,
             { QualifiedItemId: Constants.SandwichQualifiedId, heldObject.Value: Chest sandwichChest } => sandwichChest,
-            Chest tableChest => tableChest,
             _ => null
         };
 

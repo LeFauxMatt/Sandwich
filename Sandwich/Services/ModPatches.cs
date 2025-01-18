@@ -32,11 +32,6 @@ internal static class ModPatches
                 postfix: new HarmonyMethod(typeof(ModPatches), nameof(Object_draw_postfix)));
 
             _ = Harmony.Patch(
-                AccessTools.DeclaredMethod(typeof(SObject), nameof(SObject.draw),
-                    [typeof(SpriteBatch), typeof(int), typeof(int), typeof(float), typeof(float)]),
-                new HarmonyMethod(typeof(ModPatches), nameof(Object_draw_prefix)));
-
-            _ = Harmony.Patch(
                 AccessTools.DeclaredMethod(typeof(SObject), nameof(SObject.drawWhenHeld)),
                 new HarmonyMethod(typeof(ModPatches), nameof(Object_drawWhenHeld_prefix)));
 
@@ -88,10 +83,6 @@ internal static class ModPatches
                 return;
         }
     }
-
-    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony")]
-    private static bool Object_draw_prefix(SObject __instance, SpriteBatch spriteBatch, int xNonTile, int yNonTile) =>
-        !__instance.DrawSandwich(spriteBatch, xNonTile, yNonTile);
 
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Harmony")]
     private static bool Object_drawInMenu_prefix(SObject __instance, SpriteBatch spriteBatch, Vector2 location) =>

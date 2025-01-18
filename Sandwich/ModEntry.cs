@@ -4,6 +4,7 @@ using StardewModdingAPI.Events;
 using StardewValley.GameData.BigCraftables;
 using StardewValley.GameData.Machines;
 using StardewValley.GameData.Objects;
+using StardewValley.GameData.Shops;
 using StardewValley.Objects;
 
 namespace LeFauxMods.Sandwich;
@@ -43,7 +44,11 @@ internal sealed class ModEntry : Mod
             }
 
             this.Helper.Input.Suppress(e.Button);
-            target.heldObject.Value = new Chest(true);
+            target.heldObject.Value = new Chest(true, Constants.SandwichId)
+            {
+                displayNameFormat = I18n.Sandwich_Name()
+            };
+
             target.MinutesUntilReady = int.MaxValue;
             Game1.player.reduceActiveItemByOne();
             return;
@@ -97,7 +102,41 @@ internal sealed class ModEntry : Mod
 
     private void OnAssetRequested(object? sender, AssetRequestedEventArgs e)
     {
-        if (e.NameWithoutLocale.IsEquivalentTo("Data/Objects"))
+        if (e.NameWithoutLocale.IsEquivalentTo("Data/BigCraftables"))
+        {
+            e.Edit(asset =>
+            {
+                asset.AsDictionary<string, BigCraftableData>().Data.Add(
+                    Constants.TableId,
+                    new BigCraftableData
+                    {
+                        Name = "Sandwich Prep Table",
+                        DisplayName = I18n.SandwichPrepTable_Name(),
+                        Description = I18n.SandwichPrepTable_Description(),
+                        CanBePlacedOutdoors = true,
+                        CanBePlacedIndoors = true,
+                        Texture = this.Helper.ModContent.GetInternalAssetName("assets/table.png").BaseName,
+                        Price = 500
+                    });
+            });
+        }
+        else if (e.NameWithoutLocale.IsEquivalentTo("Data/Machines"))
+        {
+            e.Edit(static asset =>
+            {
+                asset.AsDictionary<string, MachineData>().Data.Add(
+                    $"(BC){Constants.TableId}",
+                    new MachineData
+                    {
+                        HasInput = true,
+                        HasOutput = true,
+                        AllowLoadWhenFull = true,
+                        PreventTimePass = [MachineTimeBlockers.Always],
+                        WobbleWhileWorking = false
+                    });
+            });
+        }
+        else if (e.NameWithoutLocale.IsEquivalentTo("Data/Objects"))
         {
             e.Edit(static asset =>
             {
@@ -115,42 +154,21 @@ internal sealed class ModEntry : Mod
                         SpriteIndex = 217
                     });
             });
-            return;
         }
-
-        if (e.NameWithoutLocale.IsEquivalentTo("Data/BigCraftables"))
-        {
-            e.Edit(asset =>
-            {
-                asset.AsDictionary<string, BigCraftableData>().Data.Add(
-                    Constants.TableId,
-                    new BigCraftableData
-                    {
-                        Name = "Sandwich Prep Table",
-                        DisplayName = I18n.SandwichPrepTable_Name(),
-                        Description = I18n.SandwichPrepTable_Description(),
-                        CanBePlacedOutdoors = true,
-                        CanBePlacedIndoors = true,
-                        Texture = this.Helper.ModContent.GetInternalAssetName("assets/table.png").BaseName
-                    });
-            });
-            return;
-        }
-
-        if (e.NameWithoutLocale.IsEquivalentTo("Data/Machines"))
+        else if (e.NameWithoutLocale.IsEquivalentTo("Data/Shops"))
         {
             e.Edit(static asset =>
             {
-                asset.AsDictionary<string, MachineData>().Data.Add(
-                    $"(BC){Constants.TableId}",
-                    new MachineData
-                    {
-                        HasInput = true,
-                        HasOutput = true,
-                        AllowLoadWhenFull = true,
-                        PreventTimePass = [MachineTimeBlockers.Always],
-                        WobbleWhileWorking = false
-                    });
+                var data = asset.AsDictionary<string, ShopData>().Data;
+                if (!data.TryGetValue("Saloon", out var shopData))
+                {
+                    return;
+                }
+
+                shopData.Items.Add(new ShopItemData
+                {
+                    Id = Constants.TableQualifiedId, ItemId = Constants.TableQualifiedId
+                });
             });
         }
     }
