@@ -77,7 +77,7 @@ internal static class ModExtensions
 
         chest.DrawFillings(spriteBatch, ref x, ref y, ref layerDepth, level);
 
-        if (obj is Chest)
+        if (obj is Chest || chest.Items.Count == 0)
         {
             return true;
         }

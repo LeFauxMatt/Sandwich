@@ -35,69 +35,64 @@ internal sealed class ModEntry : Mod
             return;
         }
 
-        // Make sandwich
-        if (target.heldObject.Value is null)
+        switch (target.heldObject.Value)
         {
-            if (Game1.player.ActiveObject is not { QualifiedItemId: "(O)216" })
-            {
+            case null when Game1.player.ActiveObject is not { QualifiedItemId: "(O)216" }:
                 return;
-            }
 
-            this.Helper.Input.Suppress(e.Button);
-            target.heldObject.Value = new Chest(true, Constants.SandwichId)
-            {
-                displayNameFormat = I18n.Sandwich_Name()
-            };
-
-            target.MinutesUntilReady = int.MaxValue;
-            Game1.player.reduceActiveItemByOne();
-            return;
-        }
-
-        // Collect sandwich
-        if (target.heldObject.Value is { QualifiedItemId: Constants.SandwichQualifiedId })
-        {
-            for (var i = 0; i < Game1.player.MaxItems; i++)
-            {
-                if (Game1.player.Items[i] is not null)
+            // Make sandwich
+            case null:
+                this.Helper.Input.Suppress(e.Button);
+                target.heldObject.Value = new Chest(true, Constants.SandwichId)
                 {
-                    continue;
+                    displayNameFormat = I18n.Sandwich_Name()
+                };
+
+                target.MinutesUntilReady = int.MaxValue;
+                Game1.player.reduceActiveItemByOne();
+                return;
+
+            // Collect sandwich
+            case { QualifiedItemId: Constants.SandwichQualifiedId }:
+                for (var i = 0; i < Game1.player.MaxItems; i++)
+                {
+                    if (Game1.player.Items[i] is not null)
+                    {
+                        continue;
+                    }
+
+                    this.Helper.Input.Suppress(e.Button);
+                    Game1.player.Items[i] = target.heldObject.Value;
+                    target.heldObject.Value = null;
+                    return;
                 }
 
-                this.Helper.Input.Suppress(e.Button);
-                Game1.player.Items[i] = target.heldObject.Value;
-                target.heldObject.Value = null;
                 return;
-            }
 
-            return;
+            // Add toppings
+            case Chest chest when Game1.player.ActiveObject?.Edibility is not (null or -300):
+                this.Helper.Input.Suppress(e.Button);
+
+                // Finish sandwich
+                if (Game1.player.ActiveObject.QualifiedItemId == "(O)216")
+                {
+                    var sandwich = ItemRegistry.Create<SObject>(Constants.SandwichId);
+                    sandwich.displayNameFormat =
+                        string.Join(' ', chest.Items.Select(static item => item.DisplayName)) + " Sandwich";
+                    sandwich.heldObject.Value = chest;
+                    sandwich.Edibility = chest.Items.OfType<SObject>().Sum(static item => item.Edibility);
+                    target.heldObject.Value = sandwich;
+                    Game1.player.reduceActiveItemByOne();
+                    return;
+                }
+
+                // Add toppings
+                var topping = (SObject)Game1.player.ActiveObject.getOne();
+                topping.heldObject.Value = Game1.player.ActiveObject.heldObject.Value;
+                chest.Items.Add(topping);
+                Game1.player.reduceActiveItemByOne();
+                return;
         }
-
-        if (target.heldObject.Value is not Chest chest || Game1.player.ActiveObject?.Edibility is null or -300)
-        {
-            return;
-        }
-
-        this.Helper.Input.Suppress(e.Button);
-
-        // End sandwich
-        if (Game1.player.ActiveObject.QualifiedItemId == "(O)216")
-        {
-            var sandwich = ItemRegistry.Create<SObject>(Constants.SandwichId);
-            sandwich.displayNameFormat =
-                string.Join(' ', chest.Items.Select(static item => item.DisplayName)) + " Sandwich";
-            sandwich.heldObject.Value = chest;
-            sandwich.Edibility = chest.Items.OfType<SObject>().Sum(static item => item.Edibility);
-            target.heldObject.Value = sandwich;
-            Game1.player.reduceActiveItemByOne();
-            return;
-        }
-
-        // Add toppings
-        var topping = (SObject)Game1.player.ActiveObject.getOne();
-        topping.heldObject.Value = Game1.player.ActiveObject.heldObject.Value;
-        chest.Items.Add(topping);
-        Game1.player.reduceActiveItemByOne();
     }
 
     private void OnAssetRequested(object? sender, AssetRequestedEventArgs e)
