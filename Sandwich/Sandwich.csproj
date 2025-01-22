@@ -10,7 +10,7 @@
 		<EnableHarmony>true</EnableHarmony>
 		<RootNamespace>LeFauxMods.Sandwich</RootNamespace>
 		<UniqueId>furyx639.Sandwich</UniqueId>
-		<UpdateKeys>GitHub:LeFauxMatt/Sandwich</UpdateKeys>
+		<UpdateKeys>Nexus:31029, CurseForge:1184936, GitHub:LeFauxMatt/Sandwich</UpdateKeys>
 		<RepositoryUrl>https://github.com/LeFauxMatt/Sandwich</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
